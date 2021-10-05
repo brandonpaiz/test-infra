@@ -93,7 +93,7 @@ func main() {
 	for qName, configs := range configQueueMap {
 		testSuiteReporter := reporter.NewTestSuiteReporter(qName, logPrefixFmt, runner.TestCaseNameFromAnnotations("scenario"))
 		testSuiteReporter.SetStartTime(time.Now())
-		go r.Run(ctx, configs, testSuiteReporter, c[qName], done)
+		go r.Run(ctx, configs, testSuiteReporter, c[qName], outputDirMap[qName], done)
 	}
 
 	for range configQueueMap {
