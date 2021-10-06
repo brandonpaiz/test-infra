@@ -75,17 +75,17 @@ func (pl *PodLogger) writePodLogToFile(ctx context.Context, pod *corev1.Pod, log
 	// Open log stream
 	req := clientset.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &corev1.PodLogOptions{})
 	driverLogs, err := req.Stream(ctx)
-	defer driverLogs.Close()
 	if err != nil {
 		return fmt.Errorf("Could not open log stream for pod: %s", pod.Name)
 	}
+	defer driverLogs.Close()
 
 	// Open output file
 	logFile, err := os.Create(logFilePath)
-	defer logFile.Close()
 	if err != nil {
 		return fmt.Errorf("Could not open %s for writing", logFilePath)
 	}
+	defer logFile.Close()
 
 	// Write log to output file
 	_, err = io.Copy(logFile, driverLogs)

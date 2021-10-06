@@ -141,6 +141,11 @@ func (r *Runner) runTest(ctx context.Context, config *grpcv1.LoadTest, reporter 
 		status = statusString(config)
 		switch {
 		case loadTest.Status.State.IsTerminated():
+			err = r.podLogger.savePodLogs(ctx, loadTest, podLogDir)
+			if err != nil {
+				reporter.Error("Could not save pod logs: %s", err)
+			}
+
 			if status != "Succeeded" {
 				reporter.Error("Test failed with reason %q: %v", loadTest.Status.Reason, loadTest.Status.Message)
 			} else {
@@ -154,11 +159,6 @@ func (r *Runner) runTest(ctx context.Context, config *grpcv1.LoadTest, reporter 
 					}
 				}
 			}
-			err = r.podLogger.savePodLogs(ctx, loadTest, podLogDir)
-			if err != nil {
-				reporter.Error("Could not save pod logs: %s", err)
-			}
-
 			done <- reporter
 			return
 		case loadTest.Status.State == grpcv1.Running:
