@@ -91,10 +91,9 @@ func main() {
 	done := make(chan *runner.TestSuiteReporter)
 
 	for qName, configs := range configQueueMap {
-		podLogDir := path.Join(outputDirMap[qName], "pod-logs")
 		testSuiteReporter := reporter.NewTestSuiteReporter(qName, logPrefixFmt, runner.TestCaseNameFromAnnotations("scenario"))
 		testSuiteReporter.SetStartTime(time.Now())
-		go r.Run(ctx, configs, testSuiteReporter, c[qName], podLogDir, done)
+		go r.Run(ctx, configs, testSuiteReporter, c[qName], path.Dir(o), done)
 	}
 
 	for range configQueueMap {
