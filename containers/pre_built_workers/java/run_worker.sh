@@ -15,22 +15,20 @@
 
 set -ex
 
-echo "bp12345678"
-
-processor_count=$(nproc)
-echo "Processor count: ${processor_count}"
-
-while getopts s: flag; do
+while getopts "d": flag; do
   case "${flag}" in
-  s) input_server_port=${OPTARG} ;;
-  *) echo "usage: $0 -s [server_port]" >&1
-       exit 1 ;;
+  d) DRIVER_PORT=${OPTARG} ;;
+  *) echo "Usage $0 -d [driver_port]" >&1
+     exit 1 ;;
   esac
 done
 
+PROCESSOR_COUNT=$(nproc)
+echo "Processor count: ${PROCESSOR_COUNT}"
 echo "Driver port: ${DRIVER_PORT}"
 
-BENCHMARK_WORKER_OPTS="-XX:ActiveProcessorCount=${processor_count}" \
+BENCHMARK_WORKER_OPTS="-XX:ActiveProcessorCount=${PROCESSOR_COUNT}" \
   timeout --kill-after="${KILL_AFTER}" "${POD_TIMEOUT}" \
   benchmarks/build/install/grpc-benchmarks/bin/benchmark_worker \
   --driver_port="${DRIVER_PORT}"
+
