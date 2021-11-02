@@ -22,7 +22,6 @@ find / -name "benchmark_worker"
 
 BENCHMARK_WORKER_OPTS="-XX:ActiveProcessorCount=${PROCESSOR_COUNT}" \
   timeout --kill-after="${KILL_AFTER}" "${POD_TIMEOUT}" \
-  #benchmarks/build/install/grpc-benchmarks/bin/benchmark_worker \
   /execute/bin/benchmark_worker \
   --driver_port="${DRIVER_PORT}"
 
