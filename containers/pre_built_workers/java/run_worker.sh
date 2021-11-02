@@ -15,19 +15,8 @@
 
 set -ex
 
-#while getopts "d": flag; do
-#  case "${flag}" in
-#  d) DRIVER_PORT=${OPTARG} ;;
-#  *) echo "Usage $0 -d [driver_port]" >&1
-#     exit 1 ;;
-#  esac
-#done
-
 PROCESSOR_COUNT=$(nproc)
 echo "Processor count: ${PROCESSOR_COUNT}"
-echo "Driver port: ${DRIVER_PORT}"
-
-find . -name "benchmark_worker"
 
 BENCHMARK_WORKER_OPTS="-XX:ActiveProcessorCount=${PROCESSOR_COUNT}" \
   timeout --kill-after="${KILL_AFTER}" "${POD_TIMEOUT}" \
