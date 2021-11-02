@@ -18,10 +18,7 @@ set -ex
 PROCESSOR_COUNT=$(nproc)
 echo "Processor count: ${PROCESSOR_COUNT}"
 
-find / -name "benchmark_worker"
-
 BENCHMARK_WORKER_OPTS="-XX:ActiveProcessorCount=${PROCESSOR_COUNT}" \
   timeout --kill-after="${KILL_AFTER}" "${POD_TIMEOUT}" \
   /execute/bin/benchmark_worker \
   --driver_port="${DRIVER_PORT}"
-
