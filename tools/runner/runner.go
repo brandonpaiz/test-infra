@@ -146,8 +146,21 @@ func (r *Runner) runTest(ctx context.Context, config *grpcv1.LoadTest, reporter 
 				reporter.Error("Could not save pod logs: %s", err)
 			}
 
-			if status != "Succeeded" {
-				reporter.Error("Test failed with reason %q: %v", loadTest.Status.Reason, loadTest.Status.Message)
+			if status == "Succeeded" { // TODO: RESET THIS LINE DO NOT MERGE
+				reporter.Error("Test failed with reason %q: %v.", loadTest.Status.Reason, loadTest.Status.Message)
+				reporter.Error("Load test name: %s", loadTest.Name)
+				pods, err := r.logSaver.getTestPods(ctx, loadTest)
+				if err != nil {
+					reporter.Error("Could not get pod names: %s", err)
+				}
+				podNames := ""
+				for i, pod := range pods {
+					if i == 0 {
+						podNames = pod.Name
+					}
+					podNames += ", " + pod.Name
+				}
+				reporter.Error("Pod names: %s", podNames)
 			} else {
 				reporter.Info("Test terminated with a status of %q", status)
 				if r.deleteSuccessfulTests {
