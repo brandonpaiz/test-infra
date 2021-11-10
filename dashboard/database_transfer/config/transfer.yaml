@@ -1,5 +1,5 @@
 bigQuery:
-  projectID: ${GCP_PROJECT_ID}
+  projectID: ${BQ_PROJECT_ID}
 
 postgres:
   dbHost: 172.17.0.1
