@@ -102,6 +102,7 @@ func (pc *PostgresClient) GetMostRecentEntry(table, datetimeField string) (strin
 	query := "SELECT " + datetimeField + " as date FROM " + table + " ORDER BY date DESC LIMIT 1;"
 
 	rows, err := pc.Query(pc.ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return "", err
 	}
@@ -122,6 +123,7 @@ func (pc *PostgresClient) GetExistingTableNames() ([]string, error) {
 
 	query := "select table_name from information_schema.tables WHERE table_schema='public';"
 	rows, err := pc.Query(pc.ctx, query)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}

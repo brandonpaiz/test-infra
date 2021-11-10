@@ -93,10 +93,6 @@ func (t *Transfer) transferTable(bigQueryDataset, tableName, dateField string, d
 	} else {
 		log.Printf("Need data occuring after: %s\n", timestamp)
 		rows, err = t.bq.GetDataAfterDatetime(bigQueryDataset, tableName, dateField, timestamp, schema)
-		log.Printf("Returned from GetDataAfterDatetime")
-		if err != nil {
-			log.Fatalf("Could not get data from big query: %s", err) // TODO: which table? etc
-		}
 	}
 	if err != nil {
 		log.Fatalf("Could not get data from big query: %s", err) // TODO: which table? etc
