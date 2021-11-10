@@ -38,6 +38,5 @@ substitute_env_in_files \
   "./database_transfer/app.yaml" \
   "./database_transfer/config/transfer.yaml"
 
-#deploy grafana database_transfer #TODO: once database_transfer shown to be working
-deploy grafana
+deploy grafana database_transfer
 
