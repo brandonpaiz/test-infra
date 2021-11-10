@@ -18,7 +18,6 @@ substitute_env_in_files () {
     tmp=$(mktemp)
     cp --attributes-only --preserve ${file} ${tmp}
     cat ${file} | envsubst > $tmp && mv $tmp $file
-    #envsubst < ${file} > "${file}.cfg"
   done
 }
 
