@@ -30,10 +30,11 @@ deploy () {
   done
 }
 
-check_env GCP_PROJECT_ID BQ_PROJECT_ID PG_USER PG_PASS PG_DATABASE CLOUD_SQL_INSTANCE || exit 1
+check_env GCP_PROJECT_ID BQ_PROJECT_ID PG_USER PG_PASS PG_DATABASE GRAFANA_ADMIN_PASS CLOUD_SQL_INSTANCE || exit 1
 
 substitute_env_in_files \
   "./grafana/app.yaml" \
+  "./grafana/grafana.ini" \
   "./grafana/provisioning/datasources/postgres_config.yaml" \
   "./database_transfer/app.yaml" \
   "./database_transfer/config/transfer.yaml"
