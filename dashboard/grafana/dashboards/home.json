@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 4,
   "links": [],
   "panels": [
     {
@@ -1326,7 +1325,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "(LIVE) gRPC Performance Multi-language on GKE (@upstream/master)",
+  "title": "gRPC Performance Multi-language on GKE (@upstream/master)",
   "uid": "18sWlbd7z",
-  "version": 20
+  "version": 1
 }
