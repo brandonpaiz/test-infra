@@ -1,7 +1,7 @@
 apiVersion: 1
 
 datasources:
-  - name: ${PG_DATABASE}
+  - name: Postgres
     type: postgres
     url: 172.17.0.1:5432
     database: ${PG_DATABASE}

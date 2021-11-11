@@ -19,7 +19,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "bq-to-pg-testing",
+      "datasource": "Postgres",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -234,7 +234,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "bq-to-pg-testing",
+      "datasource": "Postgres",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -421,7 +421,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "bq-to-pg-testing",
+      "datasource": "Postgres",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -644,7 +644,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "bq-to-pg-testing",
+      "datasource": "Postgres",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -867,7 +867,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "bq-to-pg-testing",
+      "datasource": "Postgres",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1090,7 +1090,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": "bq-to-pg-testing",
+      "datasource": "Postgres",
       "description": "",
       "fieldConfig": {
         "defaults": {
