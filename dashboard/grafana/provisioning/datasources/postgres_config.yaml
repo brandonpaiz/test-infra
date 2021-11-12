@@ -7,7 +7,7 @@ datasources:
     database: ${PG_DATABASE}
     user: ${PG_USER}
     secureJsonData:
-      password: ${PG_PASS} # may need to wrap in single quotes
+      password: ${PG_PASS}
     jsonData:
       sslmode: 'disable' # disable/require/verify-ca/verify-full
       maxOpenConns: 0 # Grafana v5.4+
