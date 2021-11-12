@@ -55,7 +55,6 @@ func serveHTTP(finished chan bool, port string) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintln(w, "Alive")
-		log.Println("Server hit")
 	})
 	http.HandleFunc("/kill", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Server killed")
