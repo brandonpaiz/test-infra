@@ -71,7 +71,6 @@ func (bqc *BigQueryClient) GetDataAfterDatetime(dataset, table, dateField, datet
 	if datetime == "" {
 		querySQL = fmt.Sprintf("SELECT %s FROM `%s.%s`;", selectStr, dataset, table)
 	}
-	log.Print(querySQL)
 
 	return bqc.bqClient.Query(querySQL).Read(bqc.ctx)
 }

@@ -1,6 +1,7 @@
 package transfer
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -37,10 +38,8 @@ func (t *Transfer) Run() {
 		}
 	}
 	for activeTransfers > 0 {
-		log.Printf("Waiting for done, activeTransfers: %d", activeTransfers)
 		<-done
 		activeTransfers--
-		log.Printf("Transfer done, activeTransfers: %d", activeTransfers)
 	}
 
 	log.Println("All transfers complete")
@@ -57,96 +56,113 @@ func (t *Transfer) RunContinuously(sleepAfterTransferInSecs int) {
 }
 
 func (t *Transfer) transferTable(bigQueryDataset, tableName, dateField string, done chan bool) {
-	// Check if table already exists in the Postgres instance
-	tableExists := t.pg.TableExists(tableName)
+	logger := NewLogger(tableName)
 
 	// Get the BigQuery table schema
 	schema, err := t.bq.GetTableSchema(bigQueryDataset, tableName)
 	if err != nil {
-		log.Fatalf("Could not get schema for table %s: %v", tableName, err)
+		logger.Errorf("Could not get BigQuery table schema: %v", err)
+		done <- true
+		return
 	}
 
-	// Create table if needed, using schema of BigQuery table
-	if tableExists == false {
-		log.Printf("Table %s not found in Postgres, creating...", tableName)
-		err = t.pg.CreateTableFromBQSchema(tableName, schema)
-		if err != nil {
-			log.Fatalf("Could not get create table: %s", err)
-		}
+	// Create PostgreSQL table if needed
+	err = t.prepareTable(tableName, schema)
+	if err != nil {
+		logger.Errorf("Could not prepare Postgres table: %v", err)
+		done <- true
+		return
 	}
 
-	// From Postgres table, get most recent entry
-	var pgTableEmpty bool
+	// Get rows to transfer
+	rows, err := t.getBigQueryRows(bigQueryDataset, tableName, dateField, schema)
+	if err != nil {
+		logger.Errorf("Could not get data from BigQuery: %v", err)
+		done <- true
+		return
+	}
+
+	// Transfer rows to Postgres
+	err = t.transferToPostgres(tableName, schema, rows, logger)
+	if err != nil {
+		logger.Errorf("Could not transfer one or more rows to Postgres: %v. ", err)
+		done <- true
+		return
+	}
+
+	done <- true
+}
+
+func (t *Transfer) prepareTable(tableName string, schema map[string]string) error {
+	tableExists := t.pg.TableExists(tableName)
+	if tableExists {
+		return nil
+	}
+
+	// Create table using schema of BigQuery table
+	err := t.pg.CreateTableFromBQSchema(tableName, schema)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *Transfer) getBigQueryRows(bigQueryDataset, tableName, dateField string, schema map[string]string) (*bigquery.RowIterator, error) {
+	// Get most recent entry from Postgres table
 	timestamp, err := t.pg.GetMostRecentEntry(tableName, dateField)
 	if err != nil {
-		log.Fatalf("Could not get most recent Postgres timestamp: %s", err)
-	}
-	if timestamp == "" {
-		pgTableEmpty = true
+		return nil, fmt.Errorf("Could not get most recent Postgres timestamp: %s", err)
 	}
 
-	// Get required rows from BigQuery
-	var rows *bigquery.RowIterator
-	if pgTableEmpty {
-		log.Println("Table empty, getting all data")
-		rows, err = t.bq.GetAllData(bigQueryDataset, tableName, schema)
-	} else {
-		log.Printf("Need data occuring after: %s\n", timestamp)
-		rows, err = t.bq.GetDataAfterDatetime(bigQueryDataset, tableName, dateField, timestamp, schema)
-	}
+	// Get data after this time, or all data if last timestamp doesn't exist
+	rows, err := t.bq.GetDataAfterDatetime(bigQueryDataset, tableName, dateField, timestamp, schema)
 	if err != nil {
-		log.Fatalf("Could not get data from big query: %s", err) // TODO: which table? etc
+		return nil, err
 	}
+	return rows, nil
+}
 
+func (t *Transfer) transferToPostgres(tableName string, schema map[string]string, rows *bigquery.RowIterator, logger *Logger) error {
 	// Begin transaction
 	ctx := t.pg.ctx
 	tx, err := t.pg.Begin(ctx)
-	if err != nil {
-		log.Fatalf("Could not begin transaction for table %s: %s", tableName, err)
-	}
 	defer tx.Rollback(ctx)
+	if err != nil {
+		return errors.New("Could not begin transaction")
+	}
 
 	// Transfer rows to Postgres
-	successes, failures := 0, 0
 	rowsPrinted := false
 	for {
 		row := make(map[string]bigquery.Value)
 		err = rows.Next(&row)
 		if !rowsPrinted {
-			log.Printf("Rows to process for table %s: %d", tableName, rows.TotalRows)
+			logger.Printf("Rows to transfer: %d", rows.TotalRows)
 			rowsPrinted = true
 		}
 		if err == iterator.Done {
 			break
 		}
 		if err != nil {
-			log.Printf("Big query row error: %s", err)
-			failures++
-			continue
+			return fmt.Errorf("Big query row error: %s", err)
 		}
-
 		insertSQL, err := createInsertSQL(tableName, schema, row)
 		if err != nil {
-			log.Printf("Could not construct insert SQL: %s", err)
-			failures++
-			continue
+			return fmt.Errorf("Could not construct insert SQL: %s", err)
 		}
-
 		_, err = tx.Exec(ctx, insertSQL)
 		if err != nil {
-			log.Printf("Transaction exec error: %s", err)
-			log.Fatal(insertSQL)
+			return fmt.Errorf("Transaction exec error: %s, %s", err, insertSQL)
 		}
-		successes++
 	}
 
+	// Commit transaction
 	err = tx.Commit(ctx)
 	if err != nil {
-		log.Fatalf("Transaction commit error: %s", err)
+		return fmt.Errorf("Transaction commit error: %s", err)
 	}
-
-	log.Printf("Finished processing table '%s'. Rows transfered: %d/%d", tableName, successes, successes+failures)
-	done <- true
+	return nil
 }
 
 func createInsertSQL(tableName string, schema map[string]string, row map[string]bigquery.Value) (string, error) {
