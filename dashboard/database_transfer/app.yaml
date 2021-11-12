@@ -3,7 +3,7 @@ env: flexible
 service: ${GCP_DATA_TRANSFER_SERVICE}
 automatic_scaling:
   min_num_instances: 1
-  max_num_instances: 2
+  max_num_instances: 1
 resources:
   cpu: 1
   memory_gb: 1
