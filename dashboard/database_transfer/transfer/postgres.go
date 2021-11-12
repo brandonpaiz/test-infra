@@ -62,8 +62,8 @@ func (pc *PostgresClient) testConnection() error {
 	return pc.Ping(pc.ctx)
 }
 
-// TableExists returns whether a table with the name `searchTable` exists
-// Table names are cached when the PostgresClient is initialized
+// TableExists returns whether a table with the given name exists.
+// Table names are cached when the PostgresClient is initialized.
 func (pc *PostgresClient) TableExists(searchTable string) bool {
 	for _, table := range pc.tables {
 		if table == searchTable {
@@ -146,7 +146,6 @@ func JSONDotAccessorToArrowAccessor(str string) string {
 	if !strings.Contains(str, ".") {
 		return str
 	}
-
 	str = strings.Replace(str, ".", "->'", 1)
 	str = strings.ReplaceAll(str, ".", "'->'")
 	str += "'"

@@ -9,14 +9,14 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-// Transfer ...
+// Transfer provides functions to transfer data from BigQuery to PostgreSQL.
 type Transfer struct {
 	bq     *BigQueryClient
 	pg     *PostgresClient
 	config *TransferConfig
 }
 
-// NewTransfer ...
+// NewTransfer returns a new Transfer.
 func NewTransfer(bq *BigQueryClient, pg *PostgresClient, config *TransferConfig) *Transfer {
 	return &Transfer{
 		bq:     bq,
@@ -25,7 +25,7 @@ func NewTransfer(bq *BigQueryClient, pg *PostgresClient, config *TransferConfig)
 	}
 }
 
-// Run ...
+// Run creates a tableTransfer goroutine for each table to be transfered.
 func (t *Transfer) Run() {
 	activeTransfers := 0
 	done := make(chan bool)
@@ -47,7 +47,7 @@ func (t *Transfer) Run() {
 }
 
 // RunContinuously continuously runs Transfer.Run, with sleepTimeInSecs between
-// transfers
+// transfers.
 func (t *Transfer) RunContinuously(sleepAfterTransferInSecs int) {
 	for {
 		t.Run()

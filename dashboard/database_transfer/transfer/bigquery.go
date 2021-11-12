@@ -29,7 +29,7 @@ func NewBigQueryClient(ctx context.Context, config BigQueryConfig) (*BigQueryCli
 	return bqc, nil
 }
 
-// ListTables lists all tables in the BigQuery instance
+// ListTables lists all tables in the BigQuery instance.
 func (bqc *BigQueryClient) ListTables() error {
 	it := bqc.bqClient.Datasets(bqc.ctx)
 	for {
@@ -45,7 +45,7 @@ func (bqc *BigQueryClient) ListTables() error {
 	return nil
 }
 
-// GetAllData gets all data from a BigQuery table
+// GetAllData returns an iterator to get all data from a BigQuery table.
 func (bqc *BigQueryClient) GetAllData(dataset, table string, schema map[string]string) (*bigquery.RowIterator, error) {
 	return bqc.GetDataAfterDatetime(dataset, table, "", "", schema)
 }
@@ -76,8 +76,9 @@ func (bqc *BigQueryClient) GetDataAfterDatetime(dataset, table, dateField, datet
 	return bqc.bqClient.Query(querySQL).Read(bqc.ctx)
 }
 
-// GetTableSchema gets the schema for the specified BigQuery table. It returns
-// a map whose keys are column names and values are PostgreSQL types.
+// GetTableSchema gets the schema for the specified BigQuery table.
+// It returns a map whose keys are column names and values are PostgreSQL
+// types.
 func (bqc *BigQueryClient) GetTableSchema(dataset, table string) (map[string]string, error) {
 	schema := make(map[string]string)
 
@@ -118,7 +119,7 @@ func (bqc *BigQueryClient) GetTableSchema(dataset, table string) (map[string]str
 	return schema, nil
 }
 
-// RowSchema associates a column name with its BigQuery data type
+// RowSchema associates a column name with its BigQuery data type.
 type RowSchema struct {
 	ColumnName string `bigquery:"column_name"`
 	DataType   string `bigquery:"data_type"`

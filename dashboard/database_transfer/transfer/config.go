@@ -64,8 +64,7 @@ func validateYAMLConfig(yConfig *YAMLConfig) error {
 	return nil
 }
 
-// YAMLConfig stores the configuration of the application
-// generated with zhwt.github.io/yaml-to-go.
+// YAMLConfig stores the configuration of the application.
 type YAMLConfig struct {
 	BigQuery BigQueryConfig `yaml:"bigQuery"`
 	Postgres PostgresConfig `yaml:"postgres"`
