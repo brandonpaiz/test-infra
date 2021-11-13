@@ -35,7 +35,6 @@ func NewPostgresClient(config PostgresConfig) (*PostgresClient, error) {
 		dbURI = fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", user, pass, host, port, name)
 	}
 
-	log.Printf("Connecting to postgres with URI: %s\n", dbURI)
 	ctx := context.Background()
 	dbPool, err := pgxpool.Connect(ctx, dbURI)
 	if err != nil {
