@@ -16,6 +16,11 @@ type BigQueryClient struct {
 	ctx      context.Context
 }
 
+// BigQuerySchema is a map of column names to BigQuery datatypes.
+type BigQuerySchema struct {
+	schema map[string]string
+}
+
 // NewBigQueryClient creates a new BigQueryClient.
 func NewBigQueryClient(ctx context.Context, config BigQueryConfig) (*BigQueryClient, error) {
 	bq, err := bigquery.NewClient(ctx, config.ProjectID)
@@ -45,17 +50,12 @@ func (bqc *BigQueryClient) ListTables() error {
 	return nil
 }
 
-// GetAllData returns an iterator to get all data from a BigQuery table.
-func (bqc *BigQueryClient) GetAllData(dataset, table string, schema map[string]string) (*bigquery.RowIterator, error) {
-	return bqc.GetDataAfterDatetime(dataset, table, "", "", schema)
-}
-
 // GetDataAfterDatetime gets all data after the specified datetime.
-func (bqc *BigQueryClient) GetDataAfterDatetime(dataset, table, dateField, datetime string, schema map[string]string) (*bigquery.RowIterator, error) {
+func (bqc *BigQueryClient) GetDataAfterDatetime(dataset, table, dateField, datetime string, bqSchema *BigQuerySchema) (*bigquery.RowIterator, error) {
 	selectStr := ""
-	for columnName, dataType := range schema {
+	for columnName, dataType := range bqSchema.schema {
 		var selectCol string
-		if dataType == "JSON" {
+		if strings.Contains(dataType, "STRUCT") {
 			selectCol = fmt.Sprintf("TO_JSON_STRING(%s) AS %s", columnName, columnName)
 		} else {
 			selectCol = fmt.Sprintf("%s", columnName)
@@ -76,22 +76,18 @@ func (bqc *BigQueryClient) GetDataAfterDatetime(dataset, table, dateField, datet
 }
 
 // GetTableSchema gets the schema for the specified BigQuery table.
-// It returns a map whose keys are column names and values are PostgreSQL
-// types.
-func (bqc *BigQueryClient) GetTableSchema(dataset, table string) (map[string]string, error) {
-	schema := make(map[string]string)
+// It returns a map whose keys are column names and values are BigQuery types.
+func (bqc *BigQueryClient) GetTableSchema(dataset, table string) (*BigQuerySchema, error) {
+	bqSchema := &BigQuerySchema{make(map[string]string)}
 
-	colQuery := "SELECT column_name, data_type FROM `%s.INFORMATION_SCHEMA.COLUMNS` WHERE table_name=\"%s\""
-	colQuery = fmt.Sprintf(colQuery, dataset, table)
-
+	colQuery := fmt.Sprintf("SELECT column_name, data_type FROM `%s.INFORMATION_SCHEMA.COLUMNS` WHERE table_name=\"%s\"", dataset, table)
 	query := bqc.bqClient.Query(colQuery)
 	rows, err := query.Read(bqc.ctx)
 	if err != nil {
 		return nil, err
 	}
-
 	for {
-		var row RowSchema
+		var row rowSchema
 		err := rows.Next(&row)
 		if err == iterator.Done {
 			break
@@ -99,27 +95,12 @@ func (bqc *BigQueryClient) GetTableSchema(dataset, table string) (map[string]str
 		if err != nil {
 			return nil, err
 		}
-		// TODO: make BigQuerySchema type, return that, then do this transformation elsewhere. like in transfer
-		if strings.Contains(row.DataType, "STRUCT") {
-			row.DataType = "JSON"
-		}
-		if strings.Contains(row.DataType, "FLOAT64") {
-			row.DataType = "DOUBLE PRECISION"
-		}
-		if strings.Contains(row.DataType, "STRING") {
-			row.DataType = "TEXT"
-		}
-		if strings.Contains(row.DataType, "TIME") {
-			row.DataType = "TIMESTAMPTZ"
-		}
-		schema[row.ColumnName] = row.DataType
+		bqSchema.schema[row.ColumnName] = row.DataType
 	}
-
-	return schema, nil
+	return bqSchema, nil
 }
 
-// RowSchema associates a column name with its BigQuery data type.
-type RowSchema struct {
+type rowSchema struct {
 	ColumnName string `bigquery:"column_name"`
 	DataType   string `bigquery:"data_type"`
 }

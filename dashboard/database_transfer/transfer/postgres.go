@@ -17,6 +17,11 @@ type PostgresClient struct {
 	tables []string
 }
 
+// PostgresSchema is a map of column names to Postgres datatypes.
+type PostgresSchema struct {
+	schema map[string]string
+}
+
 // NewPostgresClient creates a new PostgresClient.
 func NewPostgresClient(config PostgresConfig) (*PostgresClient, error) {
 	var (
@@ -72,12 +77,10 @@ func (pc *PostgresClient) TableExists(searchTable string) bool {
 	return false
 }
 
-// CreateTableFromBQSchema creates a new table from a schema.
-func (pc *PostgresClient) CreateTableFromBQSchema(tableName string, schema map[string]string) error {
-	// TODO: create a type for the schema
+// CreateTableFromSchema creates a new table from a PostgresSchema.
+func (pc *PostgresClient) CreateTableFromSchema(tableName string, pgSchema *PostgresSchema) error {
 	sqlSchema := ""
-
-	for columnName, dataType := range schema {
+	for columnName, dataType := range pgSchema.schema {
 		if sqlSchema == "" {
 			sqlSchema = fmt.Sprintf("%s %s", columnName, dataType)
 			continue

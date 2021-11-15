@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/bigquery"
@@ -59,15 +60,23 @@ func (t *Transfer) transferTable(bigQueryDataset, tableName, dateField string, d
 	logger := NewLogger(tableName)
 
 	// Get the BigQuery table schema
-	schema, err := t.bq.GetTableSchema(bigQueryDataset, tableName)
+	bqSchema, err := t.bq.GetTableSchema(bigQueryDataset, tableName)
 	if err != nil {
 		logger.Errorf("Could not get BigQuery table schema: %v", err)
 		done <- true
 		return
 	}
 
+	// Convert BigQuery schema to Postgres schema
+	pgSchema, err := t.convertSchema(bqSchema)
+	if err != nil {
+		logger.Errorf("Could not convert schema: %v", err)
+		done <- true
+		return
+	}
+
 	// Create PostgreSQL table if needed
-	err = t.prepareTable(tableName, schema)
+	err = t.prepareTable(tableName, pgSchema)
 	if err != nil {
 		logger.Errorf("Could not prepare Postgres table: %v", err)
 		done <- true
@@ -75,7 +84,7 @@ func (t *Transfer) transferTable(bigQueryDataset, tableName, dateField string, d
 	}
 
 	// Get rows to transfer
-	rows, err := t.getBigQueryRows(bigQueryDataset, tableName, dateField, schema)
+	rows, err := t.getBigQueryRows(bigQueryDataset, tableName, dateField, bqSchema)
 	if err != nil {
 		logger.Errorf("Could not get data from BigQuery: %v", err)
 		done <- true
@@ -83,7 +92,7 @@ func (t *Transfer) transferTable(bigQueryDataset, tableName, dateField string, d
 	}
 
 	// Transfer rows to Postgres
-	err = t.transferToPostgres(tableName, schema, rows, logger)
+	err = t.transferToPostgres(tableName, pgSchema, rows, logger)
 	if err != nil {
 		logger.Errorf("Could not transfer one or more rows to Postgres: %v. ", err)
 		done <- true
@@ -93,14 +102,37 @@ func (t *Transfer) transferTable(bigQueryDataset, tableName, dateField string, d
 	done <- true
 }
 
-func (t *Transfer) prepareTable(tableName string, schema map[string]string) error {
+func (t *Transfer) convertSchema(bqSchema *BigQuerySchema) (*PostgresSchema, error) {
+	pgSchema := &PostgresSchema{make(map[string]string)}
+	for columnName, dataType := range bqSchema.schema {
+		if strings.Contains(dataType, "STRUCT") {
+			pgSchema.schema[columnName] = "JSON"
+			continue
+		}
+		if strings.Contains(dataType, "FLOAT64") {
+			pgSchema.schema[columnName] = "DOUBLE PRECISION"
+			continue
+		}
+		if strings.Contains(dataType, "STRING") {
+			pgSchema.schema[columnName] = "TEXT"
+			continue
+		}
+		if strings.Contains(dataType, "TIME") {
+			pgSchema.schema[columnName] = "TIMESTAMPTZ"
+			continue
+		}
+		pgSchema.schema[columnName] = dataType
+	}
+	return pgSchema, nil
+}
+
+func (t *Transfer) prepareTable(tableName string, pgSchema *PostgresSchema) error {
 	tableExists := t.pg.TableExists(tableName)
 	if tableExists {
 		return nil
 	}
 
-	// Create table using schema of BigQuery table
-	err := t.pg.CreateTableFromBQSchema(tableName, schema)
+	err := t.pg.CreateTableFromSchema(tableName, pgSchema)
 	if err != nil {
 		return err
 	}
@@ -108,7 +140,7 @@ func (t *Transfer) prepareTable(tableName string, schema map[string]string) erro
 	return nil
 }
 
-func (t *Transfer) getBigQueryRows(bigQueryDataset, tableName, dateField string, schema map[string]string) (*bigquery.RowIterator, error) {
+func (t *Transfer) getBigQueryRows(bigQueryDataset, tableName, dateField string, bqSchema *BigQuerySchema) (*bigquery.RowIterator, error) {
 	// Get most recent entry from Postgres table
 	timestamp, err := t.pg.GetMostRecentEntry(tableName, dateField)
 	if err != nil {
@@ -116,14 +148,14 @@ func (t *Transfer) getBigQueryRows(bigQueryDataset, tableName, dateField string,
 	}
 
 	// Get data after this time, or all data if last timestamp doesn't exist
-	rows, err := t.bq.GetDataAfterDatetime(bigQueryDataset, tableName, dateField, timestamp, schema)
+	rows, err := t.bq.GetDataAfterDatetime(bigQueryDataset, tableName, dateField, timestamp, bqSchema)
 	if err != nil {
 		return nil, err
 	}
 	return rows, nil
 }
 
-func (t *Transfer) transferToPostgres(tableName string, schema map[string]string, rows *bigquery.RowIterator, logger *Logger) error {
+func (t *Transfer) transferToPostgres(tableName string, pgSchema *PostgresSchema, rows *bigquery.RowIterator, logger *Logger) error {
 	// Begin transaction
 	ctx := t.pg.ctx
 	tx, err := t.pg.Begin(ctx)
@@ -147,7 +179,7 @@ func (t *Transfer) transferToPostgres(tableName string, schema map[string]string
 		if err != nil {
 			return fmt.Errorf("Big query row error: %s", err)
 		}
-		insertSQL, err := createInsertSQL(tableName, schema, row)
+		insertSQL, err := createInsertSQL(tableName, pgSchema, row)
 		if err != nil {
 			return fmt.Errorf("Could not construct insert SQL: %s", err)
 		}
@@ -165,11 +197,11 @@ func (t *Transfer) transferToPostgres(tableName string, schema map[string]string
 	return nil
 }
 
-func createInsertSQL(tableName string, schema map[string]string, row map[string]bigquery.Value) (string, error) {
+func createInsertSQL(tableName string, pgSchema *PostgresSchema, row map[string]bigquery.Value) (string, error) {
 	columnNames := ""
 	valuesString := ""
 
-	for colName := range schema {
+	for colName := range pgSchema.schema {
 		if columnNames == "" {
 			columnNames = fmt.Sprintf("%s", colName)
 		} else {
@@ -177,10 +209,10 @@ func createInsertSQL(tableName string, schema map[string]string, row map[string]
 		}
 
 		colValue := row[colName]
-		if schema[colName] == "TIMESTAMPTZ" {
+		if pgSchema.schema[colName] == "TIMESTAMPTZ" {
 			colValue = row[colName].(time.Time).Format(time.RFC3339)
 		}
-		if schema[colName] == "DOUBLE PRECISION" {
+		if pgSchema.schema[colName] == "DOUBLE PRECISION" {
 			if colValue == nil {
 				// TODO: Change to "NULL" after addding support for nullable columns.
 				colValue = "0"
