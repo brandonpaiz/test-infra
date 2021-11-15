@@ -1,4 +1,0 @@
-cron:
-  - description: "Scheduled transfers"
-    url: /run
-    schedule: every 10 minutes

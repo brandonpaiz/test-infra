@@ -41,3 +41,10 @@ substitute_env_in_files \
 
 deploy grafana database_transfer
 
+# Create a job to transfer new data every 10 minutes
+gcloud scheduler jobs create app-engine \
+  ${GCP_DATA_TRANSFER_SERVICE}-schedule \
+  --service ${GCP_DATA_TRANSFER_SERVICE} \
+  --schedule "*/10 * * * *" \
+  --relative-url="/run" \
+  --project=${GCP_PROJECT_ID}
