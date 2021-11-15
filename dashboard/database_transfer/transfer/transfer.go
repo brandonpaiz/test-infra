@@ -16,19 +16,31 @@ type Transfer struct {
 	bq     *BigQueryClient
 	pg     *PostgresClient
 	config *TransferConfig
+	ready  chan bool
 }
 
 // NewTransfer returns a new Transfer.
 func NewTransfer(bq *BigQueryClient, pg *PostgresClient, config *TransferConfig) *Transfer {
-	return &Transfer{
+	transfer := &Transfer{
 		bq:     bq,
 		pg:     pg,
 		config: config,
+		ready:  make(chan bool, 1),
 	}
+	transfer.ready <- true
+	return transfer
 }
 
 // Run creates a tableTransfer goroutine for each table to be transfered.
 func (t *Transfer) Run() {
+	select {
+	case <-t.ready:
+		log.Println("Beginning transfer(s)")
+	default:
+		log.Println("Transfer(s) already in progress, skipping")
+		return
+	}
+
 	activeTransfers := 0
 	done := make(chan bool)
 
@@ -44,6 +56,7 @@ func (t *Transfer) Run() {
 	}
 
 	log.Println("All transfers complete")
+	t.ready <- true
 }
 
 // RunContinuously continuously runs Transfer.Run, with sleepTimeInSecs between

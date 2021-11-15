@@ -17,9 +17,6 @@ func main() {
 		httpServerPort = "8080"
 	}
 
-	finished := make(chan bool)
-	go serveHTTP(finished, httpServerPort)
-
 	config, err := transfer.NewConfig("./config/transfer.yaml")
 	if err != nil {
 		log.Fatalf("Error getting config: %s", err)
@@ -43,21 +40,24 @@ func main() {
 	}
 	log.Println("Initialized BigQuery client")
 
-	t := transfer.NewTransfer(bqdb, pgdb, &transferConfig)
-
-	sleepAfterTransferInSecs := 60 * 10
-	go t.RunContinuously(sleepAfterTransferInSecs)
+	dbTransfer := transfer.NewTransfer(bqdb, pgdb, &transferConfig)
+	finished := make(chan bool)
+	go serveHTTP(dbTransfer, httpServerPort, finished)
 
 	<-finished
 }
 
-func serveHTTP(finished chan bool, port string) {
+func serveHTTP(dbTransfer *transfer.Transfer, port string, finished chan bool) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, "Alive")
+		fmt.Fprintln(w, "Alive\n")
+	})
+	http.HandleFunc("/run", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Request received\n")
+		go dbTransfer.Run()
 	})
 	http.HandleFunc("/kill", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Server killed")
+		fmt.Fprintln(w, "Server killed\n")
 		finished <- true
 	})
 
