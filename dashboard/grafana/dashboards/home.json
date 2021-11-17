@@ -28,8 +28,8 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "points",
-            "fillOpacity": 10,
+            "drawStyle": "line",
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "graph": false,
@@ -42,7 +42,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "always",
             "spanNulls": true
           },
           "mappings": [],
@@ -114,6 +114,13 @@
               {
                 "id": "displayName",
                 "value": "Go"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#67cfde",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -171,6 +178,18 @@
                   "fixedColor": "red",
                   "mode": "fixed"
                 }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "number"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "µs"
               }
             ]
           }
@@ -244,7 +263,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "points",
+            "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
@@ -258,7 +277,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "always",
             "spanNulls": true
           },
           "mappings": [],
@@ -287,6 +306,13 @@
               {
                 "id": "displayName",
                 "value": "Python"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -299,6 +325,13 @@
               {
                 "id": "displayName",
                 "value": "Ruby"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -311,6 +344,12 @@
               {
                 "id": "displayName",
                 "value": "C++"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -323,6 +362,13 @@
               {
                 "id": "displayName",
                 "value": "C#"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -335,6 +381,13 @@
               {
                 "id": "displayName",
                 "value": "PHP Sync (protobuf php)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -347,6 +400,13 @@
               {
                 "id": "displayName",
                 "value": "PHP Sync (protobuf c)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-purple",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -431,7 +491,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "points",
+            "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
@@ -445,7 +505,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "always",
             "spanNulls": true
           },
           "mappings": [],
@@ -474,6 +534,13 @@
               {
                 "id": "displayName",
                 "value": "Python"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -486,18 +553,13 @@
               {
                 "id": "displayName",
                 "value": "Ruby"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "cpp_protobuf_sync_unary_ping_pong_secure"
-            },
-            "properties": [
+              },
               {
-                "id": "displayName",
-                "value": "C++"
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -510,6 +572,13 @@
               {
                 "id": "displayName",
                 "value": "C#"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -521,7 +590,14 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "PHP Sync (protobuf php)"
+                "value": "PHP 7 (protobuf php)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -534,6 +610,13 @@
               {
                 "id": "displayName",
                 "value": "PHP Sync (protobuf c)"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-purple",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -558,6 +641,12 @@
               {
                 "id": "displayName",
                 "value": "C++"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -570,6 +659,13 @@
               {
                 "id": "displayName",
                 "value": "Go"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#67cfde",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -582,6 +678,13 @@
               {
                 "id": "displayName",
                 "value": "Java"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
               }
             ]
           }
@@ -654,7 +757,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "points",
+            "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
@@ -664,11 +767,11 @@
             },
             "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 5,
+            "pointSize": 3,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "always",
             "spanNulls": true
           },
           "mappings": [],
@@ -757,18 +860,6 @@
               {
                 "id": "displayName",
                 "value": "PHP Sync (protobuf c)"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byType",
-              "options": "number"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "μs"
               }
             ]
           },
@@ -877,7 +968,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "points",
+            "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
@@ -887,11 +978,11 @@
             },
             "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 5,
+            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "always",
             "spanNulls": true
           },
           "mappings": [],
@@ -980,18 +1071,6 @@
               {
                 "id": "displayName",
                 "value": "PHP Sync (protobuf c)"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byType",
-              "options": "number"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "μs"
               }
             ]
           },
@@ -1100,7 +1179,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "points",
+            "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
@@ -1110,11 +1189,11 @@
             },
             "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 5,
+            "pointSize": 4,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
+            "showPoints": "always",
             "spanNulls": true
           },
           "mappings": [],
@@ -1203,18 +1282,6 @@
               {
                 "id": "displayName",
                 "value": "PHP Sync (protobuf c)"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byType",
-              "options": "number"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "μs"
               }
             ]
           },
