@@ -226,18 +226,22 @@ func createInsertSQL(tableName string, pgSchema *PostgresSchema, row map[string]
 			colValue = row[colName].(time.Time).Format(time.RFC3339)
 		}
 		if pgSchema.schema[colName] == "DOUBLE PRECISION" {
-			if colValue == nil {
-				// TODO: Change to "NULL" after addding support for nullable columns.
-				colValue = "0"
-			} else {
+			if colValue != nil {
 				colValue = fmt.Sprintf("%f", row[colName])
 			}
-
 		}
 		if valuesString == "" {
-			valuesString = fmt.Sprintf(`'%s'`, colValue)
+			if colValue == nil {
+				valuesString = fmt.Sprintf(`%s`, "NULL")
+			} else {
+				valuesString = fmt.Sprintf(`'%s'`, colValue)
+			}
 		} else {
-			valuesString = fmt.Sprintf(`%s, '%s'`, valuesString, colValue)
+			if colValue == nil {
+				valuesString = fmt.Sprintf(`%s, %s`, valuesString, "NULL")
+			} else {
+				valuesString = fmt.Sprintf(`%s, '%s'`, valuesString, colValue)
+			}
 		}
 	}
 
