@@ -21,9 +21,9 @@ steps:
 
 # Docker build grafana, database transfer script
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/dashboard/grafana:$SHORT_SHA', 'dashboard/grafana/Dockerfile']
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/dashboard/grafana:$SHORT_SHA', 'dashboard/grafana']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/dashboard/database_transfer:$SHORT_SHA', 'dashboard/database_transfer/Dockerfile']
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/dashboard/database_transfer:$SHORT_SHA', 'dashboard/database_transfer']
 
 # Docker push to Google Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
