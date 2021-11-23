@@ -1,6 +1,6 @@
 steps:
-- name: 'ubuntu'
-  args: ['bash', './dashboard/deploy.sh', '--no-confirm']
+- name: 'alpine'
+  args: ['apk add bash gettext && bash ./dashboard/deploy.sh --no-confirm']
   env:
   - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
   - 'GCP_GRAFANA_SERVICE=$_GCP_GRAFANA_SERVICE'
