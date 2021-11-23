@@ -6,7 +6,8 @@ steps:
     - |
       apt-get update
       apt-get install -y gettext-base
-      ./dashboard/sub_env.sh --no-confirm
+      pushd ./dashboard
+      ./sub_env.sh --no-confirm
   env:
   - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
   - 'GCP_GRAFANA_SERVICE=$_GCP_GRAFANA_SERVICE'
