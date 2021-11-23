@@ -1,9 +1,10 @@
 steps:
-- name: 'alpine'
+- name: 'ubuntu'
+  entrypoint: /bin/bash
   args:
     - -c
     - |
-      apk add bash gettext && ./dashboard/deploy.sh --no-confirm
+      apt install gettext && ./dashboard/deploy.sh --no-confirm
   env:
   - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
   - 'GCP_GRAFANA_SERVICE=$_GCP_GRAFANA_SERVICE'
