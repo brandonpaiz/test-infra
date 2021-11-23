@@ -27,6 +27,6 @@ steps:
 
 # Docker push to Google Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', '-t', 'gcr.io/$PROJECT_ID/dashboard/grafana:$SHORT_SHA']
+  args: ['push', 'gcr.io/$PROJECT_ID/dashboard/grafana:$SHORT_SHA']
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', '-t', 'gcr.io/$PROJECT_ID/dashboard/database_transfer:$SHORT_SHA']
+  args: ['push', 'gcr.io/$PROJECT_ID/dashboard/database_transfer:$SHORT_SHA']
