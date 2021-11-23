@@ -42,6 +42,9 @@ deploy_no_confirm() {
 
 check_env GCP_PROJECT_ID GCP_GRAFANA_SERVICE GCP_DATA_TRANSFER_SERVICE BQ_PROJECT_ID PG_USER PG_PASS PG_DATABASE GRAFANA_ADMIN_PASS CLOUD_SQL_INSTANCE || exit 1
 
+echo "GCP_PROJECT_ID"
+echo ${_GCP_PROJECT_ID}
+
 substitute_env_in_files \
   "./grafana/app.yaml" \
   "./grafana/grafana.ini" \
