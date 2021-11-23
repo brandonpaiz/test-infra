@@ -4,7 +4,7 @@ steps:
   args:
     - -c
     - |
-      apt-update
+      apt-get update
       apt-get install -y gettext-base
       ./dashboard/sub_env.sh --no-confirm
 
