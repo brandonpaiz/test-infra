@@ -2,3 +2,5 @@ steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: 'bash'
   args: ['./dashboard/deploy.sh', '--no-confirm']
+  env:
+  - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
