@@ -30,6 +30,16 @@ deploy () {
   done
 }
 
+deploy_no_confirm() {
+  echo "no confirm"
+  directories=("$@")
+  for directory in "${directories[@]}"; do
+    pushd ${directory} > /dev/null
+    gcloud app deploy --project ${GCP_PROJECT_ID} --quiet
+    popd > /dev/null
+  done
+}
+
 check_env GCP_PROJECT_ID GCP_GRAFANA_SERVICE GCP_DATA_TRANSFER_SERVICE BQ_PROJECT_ID PG_USER PG_PASS PG_DATABASE GRAFANA_ADMIN_PASS CLOUD_SQL_INSTANCE || exit 1
 
 substitute_env_in_files \
@@ -39,7 +49,11 @@ substitute_env_in_files \
   "./database_transfer/app.yaml" \
   "./database_transfer/config/transfer.yaml"
 
-deploy grafana database_transfer
+if [ "$1" = "--no-confirm" ]; then
+  deploy_no_confirm grafana database_transfer
+else
+  deploy grafana database_transfer
+fi
 
 # Create a job to transfer new data every 10 minutes
 gcloud scheduler jobs create app-engine \
@@ -47,4 +61,4 @@ gcloud scheduler jobs create app-engine \
   --service ${GCP_DATA_TRANSFER_SERVICE} \
   --schedule "*/10 * * * *" \
   --relative-url="/run" \
-  --project=${GCP_PROJECT_ID}
+  --project=${GCP_PROJECT_ID} --quiet
