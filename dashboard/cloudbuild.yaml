@@ -4,7 +4,7 @@ steps:
   args:
     - -c
     - |
-      apt install gettext && ./dashboard/deploy.sh --no-confirm
+      apt-get install gettext-base && ./dashboard/deploy.sh --no-confirm
   env:
   - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
   - 'GCP_GRAFANA_SERVICE=$_GCP_GRAFANA_SERVICE'
