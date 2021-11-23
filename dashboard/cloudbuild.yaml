@@ -7,6 +7,16 @@ steps:
       apt-get update
       apt-get install -y gettext-base
       ./dashboard/sub_env.sh --no-confirm
+  env:
+  - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
+  - 'GCP_GRAFANA_SERVICE=$_GCP_GRAFANA_SERVICE'
+  - 'GCP_DATA_TRANSFER_SERVICE=$_GCP_DATA_TRANSFER_SERVICE'
+  - 'BQ_PROJECT_ID=$_BQ_PROJECT_ID'
+  - 'PG_USER=$_PG_USER'
+  - 'PG_PASS=$_PG_PASS'
+  - 'PG_DATABASE=$_PG_DATABASE'
+  - 'GRAFANA_ADMIN_PASS=$_GRAFANA_ADMIN_PASS'
+  - 'CLOUD_SQL_INSTANCE=$_CLOUD_SQL_INSTANCE'
 
 # Docker build grafana, database transfer script
 - name: 'gcr.io/cloud-builders/docker'
@@ -19,14 +29,3 @@ steps:
   args: ['push', '-t', 'gcr.io/$PROJECT_ID/dashboard/grafana:$SHORT_SHA']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', '-t', 'gcr.io/$PROJECT_ID/dashboard/database_transfer:$SHORT_SHA']
-
-  env:
-  - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
-  - 'GCP_GRAFANA_SERVICE=$_GCP_GRAFANA_SERVICE'
-  - 'GCP_DATA_TRANSFER_SERVICE=$_GCP_DATA_TRANSFER_SERVICE'
-  - 'BQ_PROJECT_ID=$_BQ_PROJECT_ID'
-  - 'PG_USER=$_PG_USER'
-  - 'PG_PASS=$_PG_PASS'
-  - 'PG_DATABASE=$_PG_DATABASE'
-  - 'GRAFANA_ADMIN_PASS=$_GRAFANA_ADMIN_PASS'
-  - 'CLOUD_SQL_INSTANCE=$_CLOUD_SQL_INSTANCE'
