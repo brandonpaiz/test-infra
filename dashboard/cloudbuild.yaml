@@ -36,6 +36,7 @@ steps:
   entrypoint: 'bash'
   args:
     - -c
-    - pushd dashboard/grafana
-    - gcloud set app/cloud_build_timeout 1600 && gcloud app deploy
+    - |
+      pushd dashboard/grafana
+      gcloud set app/cloud_build_timeout 1600 && gcloud app deploy
   timeout: '1600s'
