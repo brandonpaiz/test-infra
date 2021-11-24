@@ -1,4 +1,5 @@
 steps:
+# Substitute environment variables in config files
 - name: 'ubuntu'
   entrypoint: /bin/bash
   args:
@@ -7,7 +8,7 @@ steps:
       apt-get update
       apt-get install -y gettext-base
       pushd ./dashboard
-      ./sub_env.sh --no-confirm
+      ./sub_env.sh
   env:
   - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
   - 'GCP_GRAFANA_SERVICE=$_GCP_GRAFANA_SERVICE'
@@ -19,19 +20,7 @@ steps:
   - 'GRAFANA_ADMIN_PASS=$_GRAFANA_ADMIN_PASS'
   - 'CLOUD_SQL_INSTANCE=$_CLOUD_SQL_INSTANCE'
 
-## Docker build grafana, database transfer script
-#- name: 'gcr.io/cloud-builders/docker'
-#  args: ['build', '-t', 'gcr.io/$PROJECT_ID/dashboard/grafana:$SHORT_SHA', 'dashboard/grafana']
-#- name: 'gcr.io/cloud-builders/docker'
-#  args: ['build', '-t', 'gcr.io/$PROJECT_ID/dashboard/database_transfer:$SHORT_SHA', 'dashboard/database_transfer']
-#
-## Docker push to Google Artifact Registry
-#- name: 'gcr.io/cloud-builders/docker'
-#  args: ['push', 'gcr.io/$PROJECT_ID/dashboard/grafana:$SHORT_SHA']
-#- name: 'gcr.io/cloud-builders/docker'
-#  args: ['push', 'gcr.io/$PROJECT_ID/dashboard/database_transfer:$SHORT_SHA']
-
-# Deploy to App Engine
+# Deploy Grafana to App Engine
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
   args:

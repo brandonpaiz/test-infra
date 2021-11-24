@@ -21,25 +21,6 @@ substitute_env_in_files () {
   done
 }
 
-deploy () {
-  directories=("$@")
-  for directory in "${directories[@]}"; do
-    pushd ${directory} > /dev/null
-    gcloud app deploy --project ${GCP_PROJECT_ID}
-    popd > /dev/null
-  done
-}
-
-deploy_no_confirm() {
-  echo "no confirm"
-  directories=("$@")
-  for directory in "${directories[@]}"; do
-    pushd ${directory} > /dev/null
-    gcloud app deploy --project ${GCP_PROJECT_ID} --quiet
-    popd > /dev/null
-  done
-}
-
 check_env GCP_PROJECT_ID GCP_GRAFANA_SERVICE GCP_DATA_TRANSFER_SERVICE BQ_PROJECT_ID PG_USER PG_PASS PG_DATABASE GRAFANA_ADMIN_PASS CLOUD_SQL_INSTANCE || exit 1
 
 substitute_env_in_files \
