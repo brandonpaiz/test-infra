@@ -7,8 +7,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// TODO: validate that dateField is actually a datetime
-
 // Config holds the configuration for the transfer, dictated by the YAML file
 // or environment variables.
 type Config struct {
