@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script checks that all necessary environment variables have been set,
+# then makes substitutes them where needed.
+
 check_env () {
   env_vars=("$@")
   missing_var=0

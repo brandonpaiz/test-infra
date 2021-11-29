@@ -7,7 +7,7 @@ steps:
     - |
       apt-get update
       apt-get install -y gettext-base
-      pushd ./dashboard
+      pushd $_DASHBOARD_PATH
       ./sub_env.sh
   env:
   - 'GCP_PROJECT_ID=$_GCP_PROJECT_ID'
@@ -26,6 +26,6 @@ steps:
   args:
     - -c
     - |
-      pushd dashboard/grafana
+      pushd $_DASHBOARD_PATH/$_DEPLOY_TARGET
       gcloud config set app/cloud_build_timeout 1600 && gcloud app deploy
   timeout: '1600s'
