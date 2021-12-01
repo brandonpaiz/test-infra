@@ -3,6 +3,7 @@ package transfer
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -23,9 +24,17 @@ func NewConfig(yamlFile string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("validation error: %s", err)
 	}
+	overwriteEnvVars(yConfig)
 
 	config := &Config{yConfig}
 	return config, nil
+}
+
+func overwriteEnvVars(conf *YAMLConfig) {
+	postgresPass := os.Getenv("PG_PASS")
+	if postgresPass != "" {
+		conf.Postgres.DbPass = postgresPass
+	}
 }
 
 func readYAML(yamlFile string) (*YAMLConfig, error) {
