@@ -36,6 +36,7 @@ func main() {
 	var p time.Duration
 	var retries uint
 	var deleteSuccessfulTests bool
+	var logURLPrefix string
 
 	flag.Var(&i, "i", "input files containing load test configurations")
 	flag.StringVar(&o, "o", "", "name of the output file for xunit xml report")
@@ -44,6 +45,7 @@ func main() {
 	flag.DurationVar(&p, "polling-interval", 20*time.Second, "polling interval for load test status")
 	flag.UintVar(&retries, "polling-retries", 2, "Maximum retries in case of communication failure")
 	flag.BoolVar(&deleteSuccessfulTests, "delete-successful-tests", false, "Delete tests immediately in case of successful termination")
+	flag.StringVar(&logURLPrefix, "log-url-prefix", "", "prefix to URL where log files can be accessed")
 	flag.Parse()
 
 	inputConfigs, err := runner.DecodeFromFiles(i)
@@ -93,7 +95,7 @@ func main() {
 	for qName, configs := range configQueueMap {
 		testSuiteReporter := reporter.NewTestSuiteReporter(qName, logPrefixFmt, runner.TestCaseNameFromAnnotations("scenario"))
 		testSuiteReporter.SetStartTime(time.Now())
-		go r.Run(ctx, configs, testSuiteReporter, c[qName], outputDirMap[qName], done)
+		go r.Run(ctx, configs, testSuiteReporter, c[qName], outputDirMap[qName], logURLPrefix, done)
 	}
 
 	for range configQueueMap {
