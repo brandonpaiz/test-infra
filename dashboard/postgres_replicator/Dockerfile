@@ -17,11 +17,12 @@
 # Build replicator
 FROM golang:1.16 AS builder
 
-ARG REPOSITORY=grpc/test-infra
-ARG GITREF=master
+ARG REPOSITORY=brandonpaiz/test-infra
+ARG GITREF=add-postgres-replicator
 
 RUN git clone https://github.com/$REPOSITORY.git src \
- && cd src/dashboard && git checkout $GITREF \
+ #&& cd src/dashboard && git checkout $GITREF \
+ && cd src && git checkout $GITREF && cd dashboard \
  && make replicator REPLICATOR_OUTPUT_DIR=/
 
 # Copy replicator binary and run it
@@ -29,6 +30,7 @@ FROM golang:1.16
 WORKDIR /app
 COPY --from=builder /replicator /app
 COPY config.yaml /app
+RUN apt-get update && apt install time
 EXPOSE 8080
 
-CMD [ "/app/replicator", "-c", "config.yaml" ]
+CMD [ "/usr/bin/time", "-v", "/app/replicator", "-c", "config.yaml" ]
