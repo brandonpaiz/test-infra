@@ -128,11 +128,13 @@ func NewSavedLogs() *SavedLogs {
 }
 
 // GenerateProperties creates pod-log related properties.
-func (sl *SavedLogs) GenerateProperties(loadTest *grpcv1.LoadTest) map[string]string {
+func (sl *SavedLogs) GenerateProperties(loadTest *grpcv1.LoadTest, logURLPrefix string) map[string]string {
 	properties := make(map[string]string)
-	for pod := range sl.podToPathMap {
+	for pod, path := range sl.podToPathMap {
 		name := sl.podToPropertyName(pod.Name, loadTest.Name, "name")
+		url := sl.podToPropertyName(pod.Name, loadTest.Name, "url")
 		properties[name] = pod.Name
+		properties[url] = fmt.Sprintf("%s%s", logURLPrefix, path)
 	}
 	return properties
 }
